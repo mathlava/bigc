@@ -35,7 +35,7 @@ func (z *BigC) Add(x *BigC, y *BigC) *BigC {
 	return z
 }
 
-func AbsSq(x *BigC) *big.Rat {
+func (x *BigC) AbsSq() *big.Rat {
 	res := new(big.Rat).Set(x.re)
 	res.Mul(res, res)
 	img := new(big.Rat).Set(x.im)
@@ -48,16 +48,10 @@ func (x *BigC) Imag() *big.Rat {
 
 func (z *BigC) Inv(x *BigC) *BigC {
 	z.adjust(x)
-	temp := new(big.Rat).Set(z.re)
-	temp.Mul(temp, temp)
-	temp2 := new(big.Rat).Set(z.im)
-	temp2.Mul(temp2, temp2)
-	temp.Add(temp, temp2)
-
-	z.re.Quo(z.re, temp)
-	z.im.Quo(z.im, temp)
+	denom := z.AbsSq()
+	z.re.Quo(z.re, denom)
+	z.im.Quo(z.im, denom)
 	z.im.Neg(z.im)
-
 	return z
 }
 
