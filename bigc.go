@@ -64,6 +64,10 @@ func (z *BigC) Inv(x *BigC) *BigC {
 	return z.Conj(z)
 }
 
+func (x *BigC) IsPureImag() bool {
+	return !x.IsReal() && x.re.Sign() == 0
+}
+
 func (x *BigC) IsReal() bool {
 	return x.im.Sign() == 0
 }
