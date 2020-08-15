@@ -106,6 +106,22 @@ func (z *BigC) Set(x *BigC) *BigC {
 	return z
 }
 
+func (x *BigC) FloatString(prec int) string {
+	if x.re.Sign() == 0 && x.im.Sign() == 0 {
+		return "0"
+	}
+	if x.re.Sign() == 0 {
+		return fmt.Sprintf("%si", x.im.FloatString(prec))
+	}
+	if x.im.Sign() == 0 {
+		return fmt.Sprintf("%s", x.re.FloatString(prec))
+	}
+	if x.im.Sign() == 1 {
+		return fmt.Sprintf("%s+%s", x.re.FloatString(prec), x.im.FloatString(prec))
+	}
+	return fmt.Sprintf("%s%s", x.re.FloatString(prec), x.im.FloatString(prec))
+}
+
 func (x *BigC) String() string {
 	if x.re.Sign() == 0 && x.im.Sign() == 0 {
 		return "0"
