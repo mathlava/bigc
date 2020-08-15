@@ -28,18 +28,18 @@ func (z *BigC) adjust(x *BigC) {
 	*z.im = *x.im
 }
 
-func (z *BigC) Add(x *BigC, y *BigC) *BigC {
-	z.adjust(x)
-	z.re.Add(z.re, y.re)
-	z.im.Add(z.im, y.im)
-	return z
-}
-
 func (x *BigC) AbsSq() *big.Rat {
 	res := new(big.Rat).Set(x.re)
 	res.Mul(res, res)
 	img := new(big.Rat).Set(x.im)
 	return res.Add(res, img.Mul(img, img))
+}
+
+func (z *BigC) Add(x *BigC, y *BigC) *BigC {
+	z.adjust(x)
+	z.re.Add(z.re, y.re)
+	z.im.Add(z.im, y.im)
+	return z
 }
 
 func (z *BigC) Conj(x *BigC) *BigC {
