@@ -42,6 +42,12 @@ func (x *BigC) AbsSq() *big.Rat {
 	return res.Add(res, img.Mul(img, img))
 }
 
+func (z *BigC) Conj(x *BigC) *BigC {
+	z.adjust(x)
+	z.im.Neg(z.im)
+	return z
+}
+
 func (x *BigC) Imag() *big.Rat {
 	return x.im
 }
@@ -51,8 +57,7 @@ func (z *BigC) Inv(x *BigC) *BigC {
 	denom := z.AbsSq()
 	z.re.Quo(z.re, denom)
 	z.im.Quo(z.im, denom)
-	z.im.Neg(z.im)
-	return z
+	return z.Conj(z)
 }
 
 func (z *BigC) Mul(x *BigC, y *BigC) *BigC {
