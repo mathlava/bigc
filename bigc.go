@@ -1,3 +1,19 @@
+// Some comments are quoted and modified from the following:
+//     https://golang.org/src/math/big/rat.go
+//       Copyright 2010 The Go Authors. All rights reserved.
+//     https://golang.org/src/math/big/ratconv.go
+//       Copyright 2015 The Go Authors. All rights reserved.
+// Use of each source code is governed by a BSD-style license.
+
+/*
+BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
+リポジトリは https://github.com/mathlava/bigc です。
+
+Example
+
+追記予定
+
+*/
 package bigc
 
 import (
@@ -16,6 +32,7 @@ type BigC struct {
 	im *big.Rat
 }
 
+// NewBigC creates a new BigC with real-part r and imaginary-part i.
 func NewBigC(r *big.Rat, i *big.Rat) *BigC {
 	return &BigC{
 		re: r,
@@ -28,6 +45,7 @@ func (z *BigC) adjust(x *BigC) {
 	*z.im = *x.im
 }
 
+// Abs sets z to square of |x| (the absolute value of x) and returns z.
 func (x *BigC) AbsSq() *big.Rat {
 	res := new(big.Rat).Set(x.re)
 	res.Mul(res, res)
@@ -35,6 +53,7 @@ func (x *BigC) AbsSq() *big.Rat {
 	return res.Add(res, img.Mul(img, img))
 }
 
+// Add sets z to the sum x+y and returns z.
 func (z *BigC) Add(x *BigC, y *BigC) *BigC {
 	z.adjust(x)
 	z.re.Add(z.re, y.re)
@@ -42,20 +61,27 @@ func (z *BigC) Add(x *BigC, y *BigC) *BigC {
 	return z
 }
 
+// Conj sets z to the conjugate complex number of x and returns z.
 func (z *BigC) Conj(x *BigC) *BigC {
 	z.adjust(x)
 	z.im.Neg(z.im)
 	return z
 }
 
+// Equal reports whether whether x equals z.
 func (z *BigC) Equal(x *BigC) bool {
 	return z.re.Cmp(x.re) == 0 && z.im.Cmp(x.im) == 0
 }
 
+// Imag returns the imaginary-part of x.
+// The result is a reference to x's imaginary-part; it
+// may change if a new value is assigned to x, and vice versa.
 func (x *BigC) Imag() *big.Rat {
 	return x.im
 }
 
+// Inv sets z to 1/x and returns z.
+// If x == 0, Inv panics.
 func (z *BigC) Inv(x *BigC) *BigC {
 	z.adjust(x)
 	denom := z.AbsSq()
@@ -64,14 +90,17 @@ func (z *BigC) Inv(x *BigC) *BigC {
 	return z.Conj(z)
 }
 
+// IsPureImag reports whether whether x is a pure imaginary number.
 func (x *BigC) IsPureImag() bool {
 	return !x.IsReal() && x.re.Sign() == 0
 }
 
+// IsReal reports whether whether x is a real number.
 func (x *BigC) IsReal() bool {
 	return x.im.Sign() == 0
 }
 
+// Mul sets z to the product x*y and returns z.
 func (z *BigC) Mul(x *BigC, y *BigC) *BigC {
 	z.adjust(x)
 	imag_temp := new(big.Rat).Set(z.re)
@@ -87,6 +116,7 @@ func (z *BigC) Mul(x *BigC, y *BigC) *BigC {
 	return z
 }
 
+// Neg sets z to -x and returns z.
 func (z *BigC) Neg(x *BigC) *BigC {
 	z.adjust(x)
 	z.re.Neg(z.re)
@@ -94,6 +124,8 @@ func (z *BigC) Neg(x *BigC) *BigC {
 	return z
 }
 
+// Quo sets z to the quotient x/y and returns z.
+// If y == 0, Quo panics.
 func (z *BigC) Quo(x *BigC, y *BigC) *BigC {
 	z.adjust(x)
 	temp := new(BigC).Set(y)
@@ -102,10 +134,14 @@ func (z *BigC) Quo(x *BigC, y *BigC) *BigC {
 	return z
 }
 
+// Real returns the real-part of x.
+// The result is a reference to x's real-part; it
+// may change if a new value is assigned to x, and vice versa.
 func (x *BigC) Real() *big.Rat {
 	return x.re
 }
 
+// Set sets z to x (by making a copy of x) and returns z.
 func (z *BigC) Set(x *BigC) *BigC {
 	z = &BigC{
 		re: x.re,
@@ -114,6 +150,9 @@ func (z *BigC) Set(x *BigC) *BigC {
 	return z
 }
 
+// FloatString returns a string representation of x in decimal form with prec
+// digits of precision after the radix point. The last digit is rounded to
+// nearest, with halves rounded away from zero.
 func (x *BigC) FloatString(prec int) string {
 	if x.re.Sign() == 0 && x.im.Sign() == 0 {
 		return "0"
@@ -130,6 +169,7 @@ func (x *BigC) FloatString(prec int) string {
 	return fmt.Sprintf("%s%s", x.re.FloatString(prec), x.im.FloatString(prec))
 }
 
+// String returns a string exact representation of x.
 func (x *BigC) String() string {
 	if x.re.Sign() == 0 && x.im.Sign() == 0 {
 		return "0"
@@ -158,6 +198,7 @@ func (x *BigC) String() string {
 	return fmt.Sprintf("%s%s%s", x.re.RatString(), i_sign_char, i_str)
 }
 
+// Sub sets z to the difference x-y and returns z.
 func (z *BigC) Sub(x *BigC, y *BigC) *BigC {
 	z.adjust(x)
 	z.re.Sub(z.re, y.re)
@@ -165,6 +206,8 @@ func (z *BigC) Sub(x *BigC, y *BigC) *BigC {
 	return z
 }
 
+// ParseString returns a new BigC instance of the result of the expression expr.
+// Quaternions and parentheses are supported.
 func ParseString(expr string) (*BigC, error) {
 	no_w := strings.Join(strings.Fields(strings.TrimSpace(expr)), "")
 	ast, err := parser.ParseExpr(no_w)
