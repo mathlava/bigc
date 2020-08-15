@@ -5,6 +5,15 @@
 //       Copyright 2015 The Go Authors. All rights reserved.
 // Use of each source code is governed by a BSD-style license.
 
+/*
+BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
+リポジトリは https://github.com/mathlava/bigc です。
+
+Example
+
+追記予定
+
+*/
 package bigc
 
 import (
