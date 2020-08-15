@@ -60,6 +60,10 @@ func (z *BigC) Inv(x *BigC) *BigC {
 	return z.Conj(z)
 }
 
+func (x *BigC) IsReal() bool {
+	return x.im.Sign() == 0
+}
+
 func (z *BigC) Mul(x *BigC, y *BigC) *BigC {
 	z.adjust(x)
 	imag_temp := new(big.Rat).Set(z.re)
