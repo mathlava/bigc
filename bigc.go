@@ -12,122 +12,130 @@ import (
 )
 
 type BigC struct {
-	Real *big.Rat
-	Imag *big.Rat
+	re *big.Rat
+	im *big.Rat
 }
 
-func (a *BigC) Set(b *BigC) *BigC {
-	a = &BigC{
-		Real: b.Real,
-		Imag: b.Imag,
+func NewBigC(r *big.Rat, i *big.Rat) *BigC {
+	return &BigC{
+		re: r,
+		im: i,
 	}
-	return a
 }
 
-func (a *BigC) adjust(b *BigC) {
-	*a.Real = *b.Real
-	*a.Imag = *b.Imag
+func (z *BigC) adjust(x *BigC) {
+	*z.re = *x.re
+	*z.im = *x.im
 }
 
-func (a *BigC) Add(c *BigC, b *BigC) *BigC {
-	a.adjust(c)
-	a.Real.Add(a.Real, b.Real)
-	a.Imag.Add(a.Imag, b.Imag)
-	return a
+func (z *BigC) Add(x *BigC, y *BigC) *BigC {
+	z.adjust(x)
+	z.re.Add(z.re, y.re)
+	z.im.Add(z.im, y.im)
+	return z
 }
 
-func (a *BigC) Sub(c *BigC, b *BigC) *BigC {
-	a.adjust(c)
-	a.Real.Sub(a.Real, b.Real)
-	a.Imag.Sub(a.Imag, b.Imag)
-	return a
+func AbsSq(x *BigC) *big.Rat {
+	res := new(big.Rat).Set(x.re)
+	res.Mul(res, res)
+	img := new(big.Rat).Set(x.im)
+	return res.Add(res, img.Mul(img, img))
 }
 
-func (a *BigC) Mul(c *BigC, b *BigC) *BigC {
-	a.adjust(c)
-	imag_temp := new(big.Rat).Set(a.Real)
-
-	a.Real.Mul(a.Real, b.Real)
-	real_temp := new(big.Rat).Set(a.Imag)
-	real_temp.Mul(real_temp, b.Imag)
-	a.Real.Sub(a.Real, real_temp)
-
-	a.Imag.Mul(a.Imag, b.Real)
-	imag_temp.Mul(imag_temp, b.Imag)
-	a.Imag.Add(a.Imag, imag_temp)
-	return a
+func (x *BigC) Imag() *big.Rat {
+	return x.im
 }
 
-func (a *BigC) Inv(c *BigC) *BigC {
-	a.adjust(c)
-	temp := new(big.Rat).Set(a.Real)
+func (z *BigC) Inv(x *BigC) *BigC {
+	z.adjust(x)
+	temp := new(big.Rat).Set(z.re)
 	temp.Mul(temp, temp)
-	temp2 := new(big.Rat).Set(a.Imag)
+	temp2 := new(big.Rat).Set(z.im)
 	temp2.Mul(temp2, temp2)
 	temp.Add(temp, temp2)
 
-	a.Real.Quo(a.Real, temp)
-	a.Imag.Quo(a.Imag, temp)
-	a.Imag.Neg(a.Imag)
+	z.re.Quo(z.re, temp)
+	z.im.Quo(z.im, temp)
+	z.im.Neg(z.im)
 
-	return a
+	return z
 }
 
-func (a *BigC) Quo(c *BigC, b *BigC) *BigC {
-	a.adjust(c)
-	temp := new(BigC).Set(b)
+func (z *BigC) Mul(x *BigC, y *BigC) *BigC {
+	z.adjust(x)
+	imag_temp := new(big.Rat).Set(z.re)
+
+	z.re.Mul(z.re, y.re)
+	real_temp := new(big.Rat).Set(z.im)
+	real_temp.Mul(real_temp, y.im)
+	z.re.Sub(z.re, real_temp)
+
+	z.im.Mul(z.im, y.re)
+	imag_temp.Mul(imag_temp, y.im)
+	z.im.Add(z.im, imag_temp)
+	return z
+}
+
+func (z *BigC) Neg(x *BigC) *BigC {
+	z.adjust(x)
+	z.re.Neg(z.re)
+	z.im.Neg(z.im)
+	return z
+}
+
+func (z *BigC) Quo(x *BigC, y *BigC) *BigC {
+	z.adjust(x)
+	temp := new(BigC).Set(y)
 	temp.Inv(temp)
-	a.Mul(a, temp)
-	return a
+	z.Mul(z, temp)
+	return z
 }
 
-func (a *BigC) Neg(c *BigC) *BigC {
-	a.adjust(c)
-	a.Real.Neg(a.Real)
-	a.Imag.Neg(a.Imag)
-	return a
+func (x *BigC) Real() *big.Rat {
+	return x.re
 }
 
-func Real(a *BigC) *BigC {
-	return &BigC{
-		Real: new(big.Rat).Set(a.Real),
-		Imag: big.NewRat(0, 1),
+func (z *BigC) Set(x *BigC) *BigC {
+	z = &BigC{
+		re: x.re,
+		im: x.im,
 	}
+	return z
 }
 
-func Imag(a *BigC) *BigC {
-	return &BigC{
-		Real: big.NewRat(0, 1),
-		Imag: new(big.Rat).Set(a.Imag),
-	}
-}
-
-func (a *BigC) String() string {
-	if a.Real.Sign() == 0 && a.Imag.Sign() == 0 {
+func (x *BigC) String() string {
+	if x.re.Sign() == 0 && x.im.Sign() == 0 {
 		return "0"
 	}
 	i_sign_char := ""
 	i_str := ""
-	if a.Imag.Sign() == 1 {
+	if x.im.Sign() == 1 {
 		i_sign_char = "+"
 	}
-	denom := fmt.Sprintf("/%s", a.Imag.Denom().String())
-	if a.Imag.Denom().Cmp(big.NewInt(1)) == 0 {
+	denom := fmt.Sprintf("/%s", x.im.Denom().String())
+	if x.im.Denom().Cmp(big.NewInt(1)) == 0 {
 		denom = ""
 	}
-	if a.Imag.Num().Cmp(big.NewInt(1)) == 0 {
+	if x.im.Num().Cmp(big.NewInt(1)) == 0 {
 		i_str = fmt.Sprintf("i%s", denom)
-	} else if a.Imag.Num().Cmp(big.NewInt(-1)) == 0 {
+	} else if x.im.Num().Cmp(big.NewInt(-1)) == 0 {
 		i_str = fmt.Sprintf("-i%s", denom)
-	} else if a.Imag.Sign() == 0 {
+	} else if x.im.Sign() == 0 {
 		i_str = ""
 	} else {
-		i_str = fmt.Sprintf("%si%s", a.Imag.Num().String(), denom)
+		i_str = fmt.Sprintf("%si%s", x.im.Num().String(), denom)
 	}
-	if a.Real.Sign() == 0 {
+	if x.re.Sign() == 0 {
 		return i_str
 	}
-	return fmt.Sprintf("%s%s%s", a.Real.RatString(), i_sign_char, i_str)
+	return fmt.Sprintf("%s%s%s", x.re.RatString(), i_sign_char, i_str)
+}
+
+func (z *BigC) Sub(x *BigC, y *BigC) *BigC {
+	z.adjust(x)
+	z.re.Sub(z.re, y.re)
+	z.im.Sub(z.im, y.im)
+	return z
 }
 
 func ParseString(expr string) (*BigC, error) {
@@ -196,8 +204,8 @@ func walk(ex interface{}) (*BigC, error) {
 				return nil, err
 			}
 			return &BigC{
-				Real: big.NewRat(num, 1),
-				Imag: big.NewRat(0, 1),
+				re: big.NewRat(num, 1),
+				im: big.NewRat(0, 1),
 			}, nil
 		case token.FLOAT:
 			num, err := strconv.ParseFloat(node.Value, 64)
@@ -207,8 +215,8 @@ func walk(ex interface{}) (*BigC, error) {
 			var res big.Rat
 			res.SetFloat64(num)
 			return &BigC{
-				Real: &res,
-				Imag: big.NewRat(0, 1),
+				re: &res,
+				im: big.NewRat(0, 1),
 			}, nil
 		case token.IMAG:
 			if node.Value[len(node.Value)-1] != 'i' {
@@ -221,15 +229,15 @@ func walk(ex interface{}) (*BigC, error) {
 			var res big.Rat
 			res.SetFloat64(num)
 			return &BigC{
-				Real: big.NewRat(0, 1),
-				Imag: &res,
+				re: big.NewRat(0, 1),
+				im: &res,
 			}, nil
 		}
 	case *ast.Ident:
 		if node.Name == "i" {
 			return &BigC{
-				Real: big.NewRat(0, 1),
-				Imag: big.NewRat(1, 1),
+				re: big.NewRat(0, 1),
+				im: big.NewRat(1, 1),
 			}, nil
 		}
 		return nil, errors.New("unexpected identier.")
