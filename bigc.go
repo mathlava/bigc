@@ -48,6 +48,10 @@ func (z *BigC) Conj(x *BigC) *BigC {
 	return z
 }
 
+func (z *BigC) Equal(x *BigC) bool {
+	return z.re.Cmp(x.re) == 0 && z.im.Cmp(x.im) == 0
+}
+
 func (x *BigC) Imag() *big.Rat {
 	return x.im
 }
