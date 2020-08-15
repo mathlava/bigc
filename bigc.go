@@ -232,7 +232,7 @@ func walk(ex interface{}) (*BigC, error) {
 				Imag: big.NewRat(1, 1),
 			}, nil
 		}
-		return nil, errors.New("parse error.")
+		return nil, errors.New("unexpected identier.")
 	}
 	return nil, errors.New("parse error.")
 }
