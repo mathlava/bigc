@@ -16,19 +16,35 @@ type BigC struct {
 	Imag *big.Rat
 }
 
-func (a *BigC) Add(b *BigC) *BigC {
+func (a *BigC) Set(b *BigC) *BigC {
+	a = &BigC{
+		Real: b.Real,
+		Imag: b.Imag,
+	}
+	return a
+}
+
+func (a *BigC) adjust(b *BigC) {
+	*a.Real = *b.Real
+	*a.Imag = *b.Imag
+}
+
+func (a *BigC) Add(c *BigC, b *BigC) *BigC {
+	a.adjust(c)
 	a.Real.Add(a.Real, b.Real)
 	a.Imag.Add(a.Imag, b.Imag)
 	return a
 }
 
-func (a *BigC) Sub(b *BigC) *BigC {
+func (a *BigC) Sub(c *BigC, b *BigC) *BigC {
+	a.adjust(c)
 	a.Real.Sub(a.Real, b.Real)
 	a.Imag.Sub(a.Imag, b.Imag)
 	return a
 }
 
-func (a *BigC) Mul(b *BigC) *BigC {
+func (a *BigC) Mul(c *BigC, b *BigC) *BigC {
+	a.adjust(c)
 	imag_temp := new(big.Rat).Set(a.Real)
 
 	a.Real.Mul(a.Real, b.Real)
@@ -42,7 +58,8 @@ func (a *BigC) Mul(b *BigC) *BigC {
 	return a
 }
 
-func (a *BigC) Inv() *BigC {
+func (a *BigC) Inv(c *BigC) *BigC {
+	a.adjust(c)
 	temp := new(big.Rat).Set(a.Real)
 	temp.Mul(temp, temp)
 	temp2 := new(big.Rat).Set(a.Imag)
@@ -56,22 +73,16 @@ func (a *BigC) Inv() *BigC {
 	return a
 }
 
-func (a *BigC) Set(b *BigC) *BigC {
-	a = &BigC{
-		Real: b.Real,
-		Imag: b.Imag,
-	}
-	return a
-}
-
-func (a *BigC) Quo(b *BigC) *BigC {
+func (a *BigC) Quo(c *BigC, b *BigC) *BigC {
+	a.adjust(c)
 	temp := new(BigC).Set(b)
-	temp.Inv()
-	a.Mul(temp)
+	temp.Inv(temp)
+	a.Mul(a, temp)
 	return a
 }
 
-func (a *BigC) Neg() *BigC {
+func (a *BigC) Neg(c *BigC) *BigC {
+	a.adjust(c)
 	a.Real.Neg(a.Real)
 	a.Imag.Neg(a.Imag)
 	return a
@@ -91,7 +102,7 @@ func Imag(a *BigC) *BigC {
 	}
 }
 
-func (a *BigC) ToString() string {
+func (a *BigC) String() string {
 	if a.Real.Sign() == 0 && a.Imag.Sign() == 0 {
 		return "0"
 	}
@@ -108,6 +119,8 @@ func (a *BigC) ToString() string {
 		i_str = fmt.Sprintf("i%s", denom)
 	} else if a.Imag.Num().Cmp(big.NewInt(-1)) == 0 {
 		i_str = fmt.Sprintf("-i%s", denom)
+	} else if a.Imag.Sign() == 0 {
+		i_str = ""
 	} else {
 		i_str = fmt.Sprintf("%si%s", a.Imag.Num().String(), denom)
 	}
@@ -117,23 +130,47 @@ func (a *BigC) ToString() string {
 	return fmt.Sprintf("%s%s%s", a.Real.RatString(), i_sign_char, i_str)
 }
 
-func NewBigCFromString(expr string) (*BigC, error) {
+func ParseString(expr string) (*BigC, error) {
 	no_w := strings.Join(strings.Fields(strings.TrimSpace(expr)), "")
 	ast, err := parser.ParseExpr(no_w)
 	if err != nil {
 		return nil, err
 	}
-	a, err := parseExpr(ast)
+	a, err := walk(ast)
 	if err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
-func parseExpr(ex interface{}) (*BigC, error) {
+func walk(ex interface{}) (*BigC, error) {
 	switch node := ex.(type) {
+	case *ast.BinaryExpr:
+		x, e1 := walk(node.X)
+		if e1 != nil {
+			return nil, e1
+		}
+		y, e2 := walk(node.Y)
+		if e2 != nil {
+			return nil, e2
+		}
+		switch node.Op {
+		case token.ADD:
+			x.Add(x, y)
+			return x, nil
+		case token.SUB:
+			x.Sub(x, y)
+			return x, nil
+		case token.MUL:
+			x.Mul(x, y)
+			return x, nil
+		case token.QUO:
+			x.Quo(x, y)
+			return x, nil
+		}
+		return nil, errors.New("unexpected operator.")
 	case *ast.UnaryExpr:
-		x, err := parseExpr(node.X)
+		x, err := walk(node.X)
 		if err != nil {
 			return nil, err
 		}
@@ -141,34 +178,16 @@ func parseExpr(ex interface{}) (*BigC, error) {
 		case token.ADD:
 			return x, nil
 		case token.SUB:
-			x.Neg()
+			x.Neg(x)
 			return x, nil
 		}
 		return nil, errors.New("unexpected operator.")
-	case *ast.BinaryExpr:
-		x, e1 := parseExpr(node.X)
-		if e1 != nil {
-			return nil, e1
+	case *ast.ParenExpr:
+		i, err := walk(node.X)
+		if err != nil {
+			return nil, err
 		}
-		y, e2 := parseExpr(node.Y)
-		if e2 != nil {
-			return nil, e2
-		}
-		switch node.Op {
-		case token.ADD:
-			x.Add(y)
-			return x, nil
-		case token.SUB:
-			x.Sub(y)
-			return x, nil
-		case token.MUL:
-			x.Mul(y)
-			return x, nil
-		case token.QUO:
-			x.Quo(y)
-			return x, nil
-		}
-		return nil, errors.New("unexpected operator.")
+		return i, nil
 	case *ast.BasicLit:
 		switch node.Kind {
 		case token.INT:
@@ -214,12 +233,6 @@ func parseExpr(ex interface{}) (*BigC, error) {
 			}, nil
 		}
 		return nil, errors.New("parse error.")
-	case *ast.ParenExpr:
-		i, err := parseExpr(node.X)
-		if err != nil {
-			return nil, err
-		}
-		return i, nil
 	}
 	return nil, errors.New("parse error.")
 }
