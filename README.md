@@ -2,7 +2,7 @@
 
 Go (golang) library implementing rational complex numbers.
 
-BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
+BigCは実部、虚部が共に有理数であるような複素数を扱うためのパッケージです。
 
 ## Usage
 
