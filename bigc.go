@@ -6,6 +6,7 @@
 // Use of each source code is governed by a BSD-style license.
 
 /*
+Go (golang) library implementing rational complex numbers.
 BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
 リポジトリは https://github.com/mathlava/bigc です。
 */
@@ -22,6 +23,7 @@ import (
 	"strings"
 )
 
+// A BigC object represents a rational complex number.
 // BigCは複素数を表します
 type BigC struct {
 	re *big.Rat
