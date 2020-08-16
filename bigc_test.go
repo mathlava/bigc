@@ -1,9 +1,7 @@
 package bigc_test
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 
 	"github.com/mathlava/bigc"
 )
