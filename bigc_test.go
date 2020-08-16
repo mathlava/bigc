@@ -9,4 +9,5 @@ import (
 func Example() {
 	ex, _ := bigc.ParseString("(1+2i)/(3-4i)")
 	fmt.Println(ex.String())
+	// Output: -1/5+2i/5
 }
