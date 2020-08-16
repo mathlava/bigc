@@ -23,7 +23,7 @@ NewBigC creates a new BigC with real-part r and imaginary-part i.
     func ParseString(expr string) (*BigC, error)
 
 ParseString returns a new BigC instance of the result of the expression expr.
-Quaternions and parentheses are supported.
+Arithmetic operations and parentheses are supported.
 
 #### func (*BigC) AbsSq
 
