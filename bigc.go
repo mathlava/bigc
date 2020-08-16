@@ -8,11 +8,6 @@
 /*
 BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
 リポジトリは https://github.com/mathlava/bigc です。
-
-Example
-
-追記予定
-
 */
 package bigc
 
@@ -27,6 +22,7 @@ import (
 	"strings"
 )
 
+// BigCは複素数を表します
 type BigC struct {
 	re *big.Rat
 	im *big.Rat
