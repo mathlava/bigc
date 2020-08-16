@@ -47,7 +47,7 @@ Conj sets z to the conjugate complex number of x and returns z.
 
     func (z *BigC) Equal(x *BigC) bool
 
-Equal reports whether whether x equals z.
+Equal reports whether x equals z.
 
 #### func (*BigC) FloatString
 
@@ -74,13 +74,13 @@ Inv sets z to 1/x and returns z. If x == 0, Inv panics.
 
     func (x *BigC) IsPureImag() bool
 
-IsPureImag reports whether whether x is a pure imaginary number.
+IsPureImag reports whether x is a pure imaginary number.
 
 #### func (*BigC) IsReal
 
     func (x *BigC) IsReal() bool
 
-IsReal reports whether whether x is a real number.
+IsReal reports whether x is a real number.
 
 #### func (*BigC) Mul
 
