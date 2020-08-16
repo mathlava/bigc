@@ -1,6 +1,7 @@
 # bigc
 
 Go (golang) library implementing rational complex numbers.
+
 BigCは実部、虚部が有理数であるような複素数を扱うためのパッケージです。
 
 ## Usage
@@ -11,6 +12,7 @@ BigCは実部、虚部が有理数であるような複素数を扱うための�
     }
 
 A BigC object represents a rational complex number.
+
 BigCは複素数を表します。
 
 #### func  NewBigC
