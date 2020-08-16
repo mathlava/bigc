@@ -203,7 +203,7 @@ func (z *BigC) Sub(x *BigC, y *BigC) *BigC {
 }
 
 // ParseString returns a new BigC instance of the result of the expression expr.
-// Quaternions and parentheses are supported.
+// Arithmetic operations and parentheses are supported.
 func ParseString(expr string) (*BigC, error) {
 	no_w := strings.Join(strings.Fields(strings.TrimSpace(expr)), "")
 	ast, err := parser.ParseExpr(no_w)
