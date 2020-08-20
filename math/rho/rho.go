@@ -71,7 +71,7 @@ func Primes(nums ...*big.Int) []*big.Int {
 	}
 	count := len(nums) - 1
 	for i := 0; ; i++ {
-		if !nums[i].ProbablyPrime(test_count) || nums[0].Cmp(val1) == 1 {
+		if !nums[i].ProbablyPrime(test_count) || nums[0].Cmp(val1) == 0 {
 			primes := nums[:i]
 			nums = nums[i:]
 			nums = append(nums, primes...)
