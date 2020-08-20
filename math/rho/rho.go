@@ -66,12 +66,18 @@ func Rho(N *big.Int) (d *big.Int, success bool) {
 const test_count = 200
 
 func Primes(nums ...*big.Int) []*big.Int {
-	if len(nums) == 1 && nums[0].Cmp(val1) == 0 {
-		return nums
+	if len(nums) == 1 {
+		if nums[0].Cmp(val1) == 0 || nums[0].Sign() == 0 {
+			return nums
+		} else if nums[0].Sign() == -1 {
+			nums[0].Neg(nums[0])
+			nums = Primes(nums...)
+			return append(nums, big.NewInt(-1))
+		}
 	}
 	count := len(nums) - 1
 	for i := 0; ; i++ {
-		if !nums[i].ProbablyPrime(test_count) || nums[0].Cmp(val1) == 1 {
+		if !nums[i].ProbablyPrime(test_count) || nums[0].Cmp(val1) == 0 {
 			primes := nums[:i]
 			nums = nums[i:]
 			nums = append(nums, primes...)
