@@ -1,4 +1,5 @@
 package rho
+
 import (
 	"math/big"
 
@@ -6,8 +7,8 @@ import (
 )
 
 var (
-	val0 = big.NewInt(0)
-	val1_2 = big.NewRat(1,2)
+	val0   = big.NewInt(0)
+	val1_2 = big.NewRat(1, 2)
 )
 
 func ArithmeticDerivative(num *bigc.BigC) *bigc.BigC {
@@ -20,8 +21,8 @@ func ArithmeticDerivative(num *bigc.BigC) *bigc.BigC {
 		return num
 	}
 	cache := new(bigc.BigC).Set(num).AbsSq()
-	num.Imag().Quo(num.Imag(),cache).Mul(num.Imag(), val1_2)
-	num.Real().Quo(num.Real(),cache).Mul(num.Real(), val1_2)
+	num.Imag().Quo(num.Imag(), cache).Mul(num.Imag(), val1_2)
+	num.Real().Quo(num.Real(), cache).Mul(num.Real(), val1_2)
 	ad_rat(cache)
 	num.Real().Mul(num.Real(), cache)
 	num.Imag().Mul(num.Imag(), cache)
