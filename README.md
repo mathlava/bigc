@@ -1,5 +1,7 @@
 # bigc
 
+[![GoDoc](https://godoc.org/github.com/mathlava/bigc?status.svg)](https://godoc.org/github.com/mathlava/bigc)
+
 Go (golang) library implementing rational complex numbers.
 
 BigCは実部、虚部が共に有理数であるような複素数を扱うためのパッケージです。
