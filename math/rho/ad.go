@@ -11,6 +11,7 @@ var (
 	val1_2 = big.NewRat(1, 2)
 )
 
+// numに素微分を行い, numを返します.
 func ArithmeticDerivative(num *bigc.BigC) *bigc.BigC {
 	if num.IsReal() {
 		ad_rat(num.Real())

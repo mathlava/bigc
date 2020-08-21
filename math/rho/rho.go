@@ -4,6 +4,7 @@ import (
 	"math/big"
 )
 
+// numsの最大公約数を返します. ※副作用があります
 func Gcd(nums ...*big.Int) *big.Int {
 	switch len(nums) {
 	case 2:
@@ -28,6 +29,7 @@ func Gcd(nums ...*big.Int) *big.Int {
 
 var val1 = big.NewInt(1)
 
+// ポラード・ロー法を試行し, 約数の一つの求値を試みます.
 func Rho(N *big.Int) (d *big.Int, success bool) {
 	d = new(big.Int)
 	f := func(a *big.Int) *big.Int {
@@ -65,6 +67,7 @@ func Rho(N *big.Int) (d *big.Int, success bool) {
 
 const test_count = 200
 
+// numsを因数分解します. ※副作用があります
 func Primes(nums ...*big.Int) []*big.Int {
 	if len(nums) == 1 {
 		if nums[0].Cmp(val1) == 0 || nums[0].Sign() == 0 {
